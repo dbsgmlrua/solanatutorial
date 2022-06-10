@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 fn main() {
     println!("----------------------Hello Worlds----------------------");
     // unsigned integer
@@ -157,6 +159,58 @@ fn main() {
     println!("{:?}", vec);
 
     println!("----------------------Hash Map----------------------");
+
+    let mut map = HashMap::new();
+
+    map.insert(0,"Hi");
+    map.insert(1,"Hi2");
+
+    println!("{:?}", map);
+
+    match map.get(&0){
+        Some(str1) => println!("{}", str1),
+        None => println!("Doesn't exist in map"),
+    }
+    match map.get(&2){
+        Some(str) => println!("{}", str),
+        _ => println!("Doesn't exist in map"),
+    }
+
+    map.remove(&0);
+    println!("{:?}", map);
+
+
+
+    println!("----------------------options----------------------");
+
+    let divide1: Option<i32> = divide(4, 2);
+    // let divide2: Option<i32> = divide(2, 3);
+
+    println!("{:?} unwraps to{}", divide1, divide1.unwrap());
+
+    //will be panic
+    // println!("{:?} unwraps to{}", divide2, divide2.unwrap());
+
+
+    println!("----------------------results----------------------");
+
+    let divide = divides(4, 2);
+    // let res = divide2.expect("we crashed");
+
+    match divide {
+        Ok(v) => println!("{}", v),
+        Err(v) => println!("{:?}", v)
+    }
+
+    // if divide.is_ok(){
+    //     println!("{}", divide.unwrap());
+    // }
+    // println!("{}", divide.unwrap());
+    // println!("{}", divide.unwrap_or(100));
+    // println!("{}", res);
+
+    println!("----------------------conculusion----------------------");
+
 }
 
 #[derive(Debug)]
@@ -202,4 +256,26 @@ fn borrowing_slice(arr: [u8; 4], slice: &[u8]){
     println!("{:?}", slice);
     println!("length: {}", slice.len());
     println!("{} {}", slice[0], slice[1]);
+}
+
+fn divide(dividend: i32, divisor: i32) -> Option<i32> {
+    if dividend % divisor != 0 {
+        None
+    } else {
+        Some(dividend/divisor)
+    }
+}
+
+#[derive(Debug)]
+enum MyError
+{
+    Error1
+}
+
+fn divides(dividend: i32, divisor: i32) -> Result<i32, MyError> {
+    if dividend % divisor != 0 {
+        Err(MyError::Error1)
+    } else {
+        Ok(dividend/divisor)
+    }
 }
