@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 fn main() {
-    
     println!("----------------------Hello Worlds----------------------");
     // unsigned integer
     // u8, u16, u32, u54, u128
