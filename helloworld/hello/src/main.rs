@@ -191,7 +191,6 @@ fn main() {
     //will be panic
     // println!("{:?} unwraps to{}", divide2, divide2.unwrap());
 
-
     println!("----------------------results----------------------");
 
     let divide = divides(4, 2);
