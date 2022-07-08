@@ -1,6 +1,6 @@
 import { createDefaultAuthorizationResultCache, SolanaMobileWalletAdapter } from '@solana-mobile/wallet-adapter-mobile';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { ConnectionProvider, useAnchorWallet, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import {
     GlowWalletAdapter,
@@ -9,8 +9,13 @@ import {
     SolflareWalletAdapter,
     TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
+import {
+    Program, web3, BN, Provider
+} from '@project-serum/anchor';
+import { clusterApiUrl, Connection } from '@solana/web3.js';
 import React, { FC, ReactNode, useMemo } from 'react';
+
+import idl from './idl.json';
 
 require('./App.css');
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -59,8 +64,133 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const Content: FC = () => {
+    const wallet = useAnchorWallet();
+    const baseAccount = web3.Keypair.generate();
+
+    function getProvider(){
+        if(!wallet) {
+            return null;
+        }
+        /* create the provider and return it to the caller */
+        /* network set to local network for now */
+        const network = "http://127.0.0.1:8899";
+        const connection = new Connection(network, "processed");
+
+        const provider = new Provider(
+            connection, wallet, {"preflightCommitment": "processed"},
+        );
+        return provider;
+    }
+
+    async function createCounter() {
+        const provider = getProvider()
+        if(!provider){
+            throw("Provider is null!");
+        }
+
+        const a = JSON.stringify(idl);
+        const b = JSON.parse(a);
+        const program = new Program(b, idl.metadata.address, provider);
+
+        try {
+            /* interact with the program via RPC */
+            await program.rpc.initialize({
+                accounts: {
+                    myAccount: baseAccount.publicKey,
+                    user: provider.wallet.publicKey,
+                    systemProgram: web3.SystemProgram.programId,
+                },
+                signers: [baseAccount]
+            });
+
+            const account = await program.account.myAccount.fetch(baseAccount.publicKey);
+            console.log('account: ', account);
+        } catch (err) {
+            console.log("Transaction error: ", err);
+        }
+    }
+    
+    async function increment() {
+        const provider = getProvider()
+        if(!provider){
+            throw("Provider is null!");
+        }
+
+        const a = JSON.stringify(idl);
+        const b = JSON.parse(a);
+        const program = new Program(b, idl.metadata.address, provider);
+
+        try {
+            /* interact with the program via RPC */
+            await program.rpc.increment({
+                accounts: {
+                    myAccount: baseAccount.publicKey,
+                },
+            });
+
+            const account = await program.account.myAccount.fetch(baseAccount.publicKey);
+            console.log('account: ', account.data.toString());
+        } catch (err) {
+            console.log("Transaction error: ", err);
+        }
+    }
+    
+    async function decrement() {
+        const provider = getProvider()
+        if(!provider){
+            throw("Provider is null!");
+        }
+
+        const a = JSON.stringify(idl);
+        const b = JSON.parse(a);
+        const program = new Program(b, idl.metadata.address, provider);
+
+        try {
+            /* interact with the program via RPC */
+            await program.rpc.decrement({
+                accounts: {
+                    myAccount: baseAccount.publicKey,
+                },
+            });
+
+            const account = await program.account.myAccount.fetch(baseAccount.publicKey);
+            console.log('account: ', account.data.toString());
+        } catch (err) {
+            console.log("Transaction error: ", err);
+        }
+    }
+    
+    async function update() {
+        const provider = getProvider()
+        if(!provider){
+            throw("Provider is null!");
+        }
+
+        const a = JSON.stringify(idl);
+        const b = JSON.parse(a);
+        const program = new Program(b, idl.metadata.address, provider);
+
+        try {
+            /* interact with the program via RPC */
+            await program.rpc.update(new BN(100), {
+                accounts: {
+                    myAccount: baseAccount.publicKey,
+                },
+            });
+
+            const account = await program.account.myAccount.fetch(baseAccount.publicKey);
+            console.log('account: ', account.data.toString());
+        } catch (err) {
+            console.log("Transaction error: ", err);
+        }
+    }
+
     return (
         <div className="App">
+            <button onClick={createCounter}>Initialize</button>
+            <button onClick={increment}>Increment</button>
+            <button onClick={decrement}>Decrement</button>
+            <button onClick={update}>Update</button>
             <WalletMultiButton />
         </div>
     );
