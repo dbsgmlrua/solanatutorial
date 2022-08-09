@@ -13,4 +13,3 @@ pub mod token_contract {
 
 #[derive(Accounts)]
 pub struct Initialize {}
-
