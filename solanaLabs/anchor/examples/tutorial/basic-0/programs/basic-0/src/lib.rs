@@ -10,6 +10,5 @@ mod basic_0 {
     }
 }
 
-
 #[derive(Accounts)]
 pub struct Initialize {}
