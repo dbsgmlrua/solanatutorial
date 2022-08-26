@@ -2,7 +2,6 @@ use anchor_lang::prelude::*;
 
 declare_id!("Fn7aq9D4YhGS2F2qx7g1otWTHXDrr4nCUESZqyHn4dsZ");
 
-
 #[program]
 mod basic_1 {
     use super::*;
